@@ -1,9 +1,33 @@
 package com.example;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+
+import static java.awt.SystemColor.text;
+
 /**
  * Model layer: encapsulates application data and business logic.
  */
 public class HelloModel {
+
+    private final StringProperty dateTimeProperty;
+
+    public HelloModel() {
+        dateTimeProperty = new SimpleStringProperty();
+    }
+
+    public void setDateTime(String dateTime) {
+        this.dateTimeProperty.set(dateTime);
+    }
+
+    public String getDateTime() {
+        return dateTimeProperty.get();
+    }
+
+    public StringProperty dateTimeProperty() {
+        return dateTimeProperty;
+    }
+
     /**
      * Returns a greeting based on the current Java and JavaFX versions.
      */
