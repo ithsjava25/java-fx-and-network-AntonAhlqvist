@@ -1,65 +1,56 @@
 package com.example;
 
-import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.event.ActionEvent;
+import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 /**
  * Controller layer: mediates between the view (FXML) and the model.
  */
 public class HelloController {
 
-    public final HelloModel model = new HelloModel();
+    private final HelloModel model = new HelloModel();
 
     @FXML
-    private Label messageLabel;
+    private Text messageLabel;
 
     @FXML
-    private Label currentDateTime;
+    private void initialize() {
+        messageLabel.textProperty().bind(
+                Bindings.concat(model.pointsProperty().asString(), " poäng")
+        );
+        startNextEvent();
+    }
 
-    public Button updateButton;
-
-    private Timeline timeline;
+    private void startNextEvent() {
+        new Timeline(
+                new KeyFrame(
+                        Duration.millis(3000 * Math.random()), event -> {
+                    model.changeImage(
+                            (int) (3 * Math.random()),
+                            (int) (4 * Math.random()));
+                    startNextEvent();
+                }
+                )).play();
+    }
 
     public HelloModel getModel() {
         return model;
     }
 
-    @FXML
-    ListView<String> listView;
-
-    @FXML
-    private void initialize() {
-        if (currentDateTime != null)
-            currentDateTime.textProperty().bind(model.dateTimeProperty());
-
-        if (messageLabel != null) {
-            messageLabel.setText(model.getGreeting());
-        }
-
-        timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
-            model.setDateTime(LocalDateTime.now()
-                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd- hh:mm:ss")));
-        }));
-        timeline.setCycleCount(Animation.INDEFINITE);
-        timeline.play();
-
-        if (currentDateTime != null)
-            currentDateTime.setText(LocalDateTime.now()
-                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")));
+    public void image1(MouseEvent mouseEvent) {
+        model.smash(0);
     }
 
-    public void updateButtonAction(ActionEvent actionEvent) {
-            currentDateTime.setText(LocalDateTime.now()
-                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")));
+    public void image2(MouseEvent mouseEvent) {
+        model.smash(1);
+    }
+
+    public void image3(MouseEvent mouseEvent) {
+        model.smash(2);
     }
 }
