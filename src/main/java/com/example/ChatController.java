@@ -12,9 +12,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-/**
- * Controller layer: mediates between the view (FXML) and the model.
- */
 public class ChatController {
 
     @FXML
@@ -34,18 +31,17 @@ public class ChatController {
 
     @FXML
     private void initialize() {
-
+        messageList.setStyle("-fx-font-family: 'Segoe UI Emoji'; -fx-font-size: 16;");
     }
 
     public void handleSendMessage(ActionEvent actionEvent) {
         String message = messageInput.getText();
         messageList.getItems().add("Du skrev: " + message);
-
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(serverAdress + "/" + topic))
                     .POST(HttpRequest.BodyPublishers.ofString(message))
-            .header("Cache", "no")
+                    .header("Cache", "no")
                     .build();
 
             httpClient.send(request, HttpResponse.BodyHandlers.discarding());
