@@ -6,9 +6,9 @@ import javafx.scene.control.Label;
 /**
  * Controller layer: mediates between the view (FXML) and the model.
  */
-public class HelloController {
+public class ChatController {
 
-    private final HelloModel model = new HelloModel();
+    private final ChatModel model = new ChatModel();
 
     @FXML
     private Label messageLabel;

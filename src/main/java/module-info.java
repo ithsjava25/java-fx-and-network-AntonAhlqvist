@@ -1,4 +1,4 @@
-module hellofx {
+module chatclient {
     requires javafx.controls;
     requires javafx.fxml;
 
