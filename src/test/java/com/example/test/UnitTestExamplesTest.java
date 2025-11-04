@@ -1,0 +1,62 @@
+package com.example.test;
+
+import org.junit.jupiter.api.Test;
+
+import java.time.LocalTime;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+
+class UnitTestExamplesTest {
+
+    @Test
+    void sumOfTwoInts() {
+        int result = UnitTestExamples.add(1, 1);
+        assertThat(result).isEqualTo(2);
+    }
+
+    @Test
+    void sumOfTwoNegativeInts() {
+        var result = UnitTestExamples.add(-1, -10);
+        assertThat(result).isEqualTo(-11);
+    }
+
+    @Test
+    void setAValueShouldSaveValue() {
+        //Arrange
+        var ob = new UnitTestExamples();
+        //Act
+        ob.setValue("Hello");
+        //Assert
+        assertThat(ob.getValue()).isEqualTo("Hello");
+    }
+
+    @Test
+    void setAnotherValueShouldSaveThat() {
+        var ob = new UnitTestExamples();
+        ob.setValue("Another");
+        assertThat(ob.getValue()).isEqualTo("Another");
+    }
+
+    @Test
+    void setNullAsThrowsAnException() {
+        var ob = new UnitTestExamples();
+
+        assertThatThrownBy(() -> ob.setValue(null))
+                .isInstanceOf(NullPointerException.class);
+    }
+
+    @Test
+    void shouldReturnGoodMorningBeforeNoon() {
+        var result = UnitTestExamples.greeting(LocalTime.of(11, 0));
+
+        assertThat(result).isEqualTo("Good Morning");
+    }
+
+    @Test
+    void shouldReturnGoodAfternoonAfterNoon() {
+        var result = UnitTestExamples.greeting(LocalTime.of(12, 0));
+
+        assertThat(result).isEqualTo("Good Afternoon");
+    }
+}
