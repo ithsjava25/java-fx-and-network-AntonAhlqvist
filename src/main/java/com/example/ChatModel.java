@@ -1,15 +1,56 @@
 package com.example;
 
-/**
- * Model layer: encapsulates application data and business logic.
- */
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
 public class ChatModel {
-    /**
-     * Returns a greeting based on the current Java and JavaFX versions.
-     */
-    public String getGreeting() {
-        String javaVersion = System.getProperty("java.version");
-        String javafxVersion = System.getProperty("javafx.version");
-        return "Hello, JavaFX " + javafxVersion + ", running on Java " + javaVersion + ".";
+
+    private final String serverAdress;
+    private final String topic = "mytopic";
+
+    private final ObservableList<String> messages = FXCollections.observableArrayList();
+    public ObservableList<String> getMessages() { return messages; }
+
+    private final HttpClient client = HttpClient.newHttpClient();
+
+    public ChatModel(String serverAdress) {
+        this.serverAdress = serverAdress;
+    }
+
+    public void receiveMessage() {
+        var request = HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create(serverAdress + "/" + topic + "/json"))
+                .build();
+
+        client.sendAsync(request, HttpResponse.BodyHandlers.ofLines())
+                .thenAccept(response -> response.body()
+                        .forEach(line -> {
+                            try {
+                                int start = line.indexOf("\"message\":\"") + 10;
+                                int end = line.indexOf("\"", start);
+                                if (start >= 10 && end > start) {
+                                    String msg = line.substring(start, end);
+                                    Platform.runLater(() -> messages.add(msg));
+                                }
+                            } catch (Exception ignored) {}
+                        }));
+    }
+
+    public void sendMessage(String message) {
+        try {
+            var request = HttpRequest.newBuilder()
+                    .uri(URI.create(serverAdress + "/" + topic))
+                    .POST(HttpRequest.BodyPublishers.ofString(message))
+                    .header("Cache", "no")
+                    .build();
+            client.send(request, HttpResponse.BodyHandlers.discarding());
+        } catch (Exception ignored) {}
     }
 }

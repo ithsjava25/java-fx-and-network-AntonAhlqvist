@@ -6,48 +6,39 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-
 public class ChatController {
 
     @FXML
     private ListView<String> messageList;
-
     @FXML
     private TextField messageInput;
 
-    private final HttpClient httpClient = HttpClient.newHttpClient();
     private final String serverAdress;
-    private final String topic = "mytopic";
+    private final ChatModel model;
 
     public ChatController() {
         Dotenv dotenv = Dotenv.load();
         serverAdress = dotenv.get("HOST_NAME");
+        model = new ChatModel(serverAdress);
     }
 
     @FXML
     private void initialize() {
         messageList.setStyle("-fx-font-family: 'Segoe UI Emoji'; -fx-font-size: 16;");
+        messageList.setItems(model.getMessages());
+        model.receiveMessage();
     }
 
-    public void handleSendMessage(ActionEvent actionEvent) {
+    @FXML
+    private void handleLocalMessage(ActionEvent actionEvent) {
+        String message = messageInput.getText();
+        messageList.getItems().add("Du skrev " + message);
+    }
+
+    @FXML
+    private void handleSendMessage(ActionEvent actionEvent) {
         String message = messageInput.getText();
         messageList.getItems().add("Du skrev: " + message);
-        try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(serverAdress + "/" + topic))
-                    .POST(HttpRequest.BodyPublishers.ofString(message))
-                    .header("Cache", "no")
-                    .build();
-
-            httpClient.send(request, HttpResponse.BodyHandlers.discarding());
-
-        } catch (IOException | InterruptedException e) {
-            messageList.getItems().add("kunde inte skicka");
-        }
+        model.sendMessage(message);
     }
 }
