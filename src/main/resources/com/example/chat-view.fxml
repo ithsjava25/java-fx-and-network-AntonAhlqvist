@@ -4,12 +4,15 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<VBox xmlns:fx="http://javafx.com/fxml" xmlns="http://javafx.com/javafx" fx:controller="com.example.ChatController">
+<VBox xmlns:fx="http://javafx.com/fxml"
+      xmlns="http://javafx.com/javafx"
+      fx:controller="com.example.ChatController"
+      style="-fx-background-color: lightblue;">
     <ListView fx:id="messageList"/>
     <HBox>
         <children>
             <TextField fx:id="messageInput"/>
-            <Button text="Skicka till server" onAction="#handleSendMessage"/>
+            <Button text="Skicka till server" disable="true"/>
             <Button text="Skicka inte till server" onAction="#handleLocalMessage"/>
         </children>
     </HBox>

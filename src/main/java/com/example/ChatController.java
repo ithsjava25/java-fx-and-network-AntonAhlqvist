@@ -9,9 +9,9 @@ import javafx.scene.control.TextField;
 public class ChatController {
 
     @FXML
-    private ListView<String> messageList;
+    ListView<String> messageList;
     @FXML
-    private TextField messageInput;
+    TextField messageInput;
 
     private final String serverAdress;
     private final ChatModel model;
@@ -30,13 +30,13 @@ public class ChatController {
     }
 
     @FXML
-    private void handleLocalMessage(ActionEvent actionEvent) {
+    void handleLocalMessage(ActionEvent actionEvent) {
         String message = messageInput.getText();
         messageList.getItems().add("Du skrev " + message);
     }
 
     @FXML
-    private void handleSendMessage(ActionEvent actionEvent) {
+    void handleSendMessage(ActionEvent actionEvent) {
         String message = messageInput.getText();
         messageList.getItems().add("Du skrev: " + message);
         model.sendMessage(message);
