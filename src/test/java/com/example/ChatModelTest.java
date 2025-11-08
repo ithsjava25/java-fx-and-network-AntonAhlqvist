@@ -1,12 +1,16 @@
 package com.example;
 
+import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
+import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.ArrayList;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@WireMockTest
 public class ChatModelTest {
 
     @Test
@@ -52,5 +56,24 @@ public class ChatModelTest {
         void sendMessage() {
             connection.send(messageToSend);
         }
+    }
+
+    /**
+     * WireMock-test som simulerar servern.
+     * Verifierar att POST skickas korrekt till /mytopic med rätt meddelande.
+     */
+    @Test
+    @DisplayName("Given a message when sendMessage is called then POST should be sent to /mytopic")
+    void sendMessageToFakeServer(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
+        String fakeServerUrl = "http://localhost:" + wmRuntimeInfo.getHttpPort();
+        ChatModel model = new ChatModel(fakeServerUrl);
+
+        stubFor(post("/mytopic").willReturn(aResponse().withStatus(200)));
+
+        String testMessage = "Hejsan svejsan!";
+        model.sendMessage(testMessage);
+
+        verify(postRequestedFor(urlEqualTo("/mytopic"))
+                .withRequestBody(equalTo(testMessage)));
     }
 }
