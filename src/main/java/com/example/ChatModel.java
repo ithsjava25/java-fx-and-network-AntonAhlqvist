@@ -11,7 +11,7 @@ import java.net.http.HttpResponse;
 
 public class ChatModel {
 
-    private final String serverAdress;
+    private final String serverAddress;
     private final String topic = "mytopic";
 
     private final ObservableList<String> messages = FXCollections.observableArrayList();
@@ -20,13 +20,13 @@ public class ChatModel {
     private final HttpClient client = HttpClient.newHttpClient();
 
     public ChatModel(String serverAdress) {
-        this.serverAdress = serverAdress;
+        this.serverAddress = serverAdress;
     }
 
     public void receiveMessage() {
         var request = HttpRequest.newBuilder()
                 .GET()
-                .uri(URI.create(serverAdress + "/" + topic + "/json"))
+                .uri(URI.create(serverAddress + "/" + topic + "/json"))
                 .build();
 
         client.sendAsync(request, HttpResponse.BodyHandlers.ofLines())
@@ -46,7 +46,7 @@ public class ChatModel {
     public void sendMessage(String message) {
         try {
             var request = HttpRequest.newBuilder()
-                    .uri(URI.create(serverAdress + "/" + topic))
+                    .uri(URI.create(serverAddress + "/" + topic))
                     .POST(HttpRequest.BodyPublishers.ofString(message))
                     .header("Cache", "no")
                     .build();

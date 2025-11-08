@@ -64,7 +64,7 @@ public class ChatModelTest {
      */
     @Test
     @DisplayName("Given a message when sendMessage is called then POST should be sent to /mytopic")
-    void sendMessageToFakeServer(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
+    void sendMessagesToFakeServer(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
         String fakeServerUrl = "http://localhost:" + wmRuntimeInfo.getHttpPort();
         ChatModel model = new ChatModel(fakeServerUrl);
 
@@ -75,5 +75,35 @@ public class ChatModelTest {
 
         verify(postRequestedFor(urlEqualTo("/mytopic"))
                 .withRequestBody(equalTo(testMessage)));
+    }
+
+    /**
+     * WireMock-test som simulerar serverns JSON-ström.
+     * Verifierar att mottagna "message"-event parsas, och visas i chatten.
+     */
+    @Test
+    @DisplayName("Given JSON stream from server when receiveMessage is called then messages are parsed")
+    void receiveMessagesFromFakeServer(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
+        String fakeServerUrl = "http://localhost:" + wmRuntimeInfo.getHttpPort();
+        ChatModel model = new ChatModel(fakeServerUrl);
+
+        String jsonStream = """
+                {"event":"keepalive"}
+                {"event":"message","message":"Hej från servern!"}
+                {"event":"message","message":"Och en till!"}
+                """;
+
+        stubFor(get("/mytopic/json")
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody(jsonStream)
+                        .withHeader("content-type", "application/json")));
+
+        model.receiveMessage();
+
+        Thread.sleep(200);
+
+        assertThat(model.getMessages())
+                .contains("Hej från servern!", "Och en till!");
     }
 }

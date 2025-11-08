@@ -13,13 +13,13 @@ public class ChatController {
     @FXML
     TextField messageInput;
 
-    private final String serverAdress;
+    private final String serverAddress;
     private final ChatModel model;
 
     public ChatController() {
         Dotenv dotenv = Dotenv.load();
-        serverAdress = dotenv.get("HOST_NAME");
-        model = new ChatModel(serverAdress);
+        serverAddress = dotenv.get("HOST_NAME");
+        model = new ChatModel(serverAddress);
     }
 
     @FXML
@@ -32,7 +32,7 @@ public class ChatController {
     @FXML
     void handleLocalMessage(ActionEvent actionEvent) {
         String message = messageInput.getText();
-        messageList.getItems().add("Du skrev " + message);
+        messageList.getItems().add("Du skrev: " + message);
     }
 
     @FXML
