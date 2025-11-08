@@ -1,9 +1,12 @@
 package com.example;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -13,14 +16,15 @@ public class ChatModel {
 
     private final String serverAddress;
     private final String topic = "mytopic";
+    private final HttpClient client = HttpClient.newHttpClient();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     private final ObservableList<String> messages = FXCollections.observableArrayList();
     public ObservableList<String> getMessages() { return messages; }
 
-    private final HttpClient client = HttpClient.newHttpClient();
-
-    public ChatModel(String serverAdress) {
-        this.serverAddress = serverAdress;
+    public ChatModel(String serverAddress) {
+        this.serverAddress = serverAddress;
+        receiveMessage();
     }
 
     public void receiveMessage() {
@@ -31,26 +35,37 @@ public class ChatModel {
 
         client.sendAsync(request, HttpResponse.BodyHandlers.ofLines())
                 .thenAccept(response -> response.body()
-                        .forEach(line -> {
+                        .map(line -> {
                             try {
-                                int start = line.indexOf("\"message\":\"") + 10;
-                                int end = line.indexOf("\"", start);
-                                if (start >= 10 && end > start) {
-                                    String msg = line.substring(start, end);
-                                    Platform.runLater(() -> messages.add(msg));
-                                }
-                            } catch (Exception ignored) {}
-                        }));
+                                return mapper.readValue(line, NtfyMessageDto.class);
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                        })
+                        .filter(msg -> "message".equals(msg.event()))
+                        .peek(System.out::println)
+                        .forEach(msg -> Platform.runLater(() -> messages.add(msg.message())))
+                );
     }
 
-    public void sendMessage(String message) {
+    public boolean sendMessage(String message) {
         try {
             var request = HttpRequest.newBuilder()
                     .uri(URI.create(serverAddress + "/" + topic))
-                    .POST(HttpRequest.BodyPublishers.ofString(message))
                     .header("Cache", "no")
+                    .POST(HttpRequest.BodyPublishers.ofString(message))
                     .build();
+
             client.send(request, HttpResponse.BodyHandlers.discarding());
-        } catch (Exception ignored) {}
+            return true;
+        } catch (IOException e) {
+            System.out.println("Kunde inte skicka meddelandet");
+        } catch (InterruptedException e) {
+            System.out.println("Skickandet av meddelandet avbröts");
+        }
+        return false;
     }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record NtfyMessageDto(String id, long time, String event, String topic, String message) { }
 }

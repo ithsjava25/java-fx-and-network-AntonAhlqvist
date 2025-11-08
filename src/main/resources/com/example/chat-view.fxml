@@ -12,7 +12,7 @@
     <HBox>
         <children>
             <TextField fx:id="messageInput"/>
-            <Button text="Skicka till server" disable="true"/>
+            <Button text="Skicka till server" onAction="#handleSendMessage"/>
             <Button text="Skicka inte till server" onAction="#handleLocalMessage"/>
         </children>
     </HBox>
