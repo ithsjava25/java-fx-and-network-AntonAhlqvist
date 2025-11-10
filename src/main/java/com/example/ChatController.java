@@ -5,9 +5,11 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import java.awt.*;
 
 public class ChatController {
 
@@ -23,6 +25,9 @@ public class ChatController {
     @FXML
     ImageView backgroundPattern;
 
+    @FXML
+    ImageView frameImage;
+
     private final String serverAddress;
     private final ChatModel model;
 
@@ -35,8 +40,18 @@ public class ChatController {
     @FXML
     private void initialize() {
         messageContainer.setStyle("-fx-font-family: 'Segoe UI Emoji'; -fx-font-size: 16;");
+        backgroundPattern.setImage(
+                new Image("file:C:/Users/anton/IdeaProjects/java-fx-and-network-AntonAhlqvist/src/main/resources/Images/tiles_background.png")
+        );
         backgroundPattern.fitWidthProperty().bind(messageStack.widthProperty());
         backgroundPattern.fitHeightProperty().bind(messageStack.heightProperty());
+
+        frameImage.setImage(
+                new Image("file:C:/Users/anton/IdeaProjects/java-fx-and-network-AntonAhlqvist/src/main/resources/Images/frame_overlay.png")
+        );
+        frameImage.fitWidthProperty().bind(messageStack.widthProperty());
+        frameImage.fitHeightProperty().bind(messageStack.heightProperty());
+
         model.receiveMessage();
     }
 
