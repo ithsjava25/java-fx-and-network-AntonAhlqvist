@@ -51,8 +51,6 @@ public class ChatController {
         );
         frameImage.fitWidthProperty().bind(messageStack.widthProperty());
         frameImage.fitHeightProperty().bind(messageStack.heightProperty());
-
-        model.receiveMessage();
     }
 
     @FXML

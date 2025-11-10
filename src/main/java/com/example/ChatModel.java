@@ -20,7 +20,9 @@ public class ChatModel {
     private final ObjectMapper mapper = new ObjectMapper();
 
     private final ObservableList<String> messages = FXCollections.observableArrayList();
-    public ObservableList<String> getMessages() { return messages; }
+    public ObservableList<String> getMessages() {
+        return messages;
+    }
 
     public ChatModel(String serverAddress) {
         this.serverAddress = serverAddress;
@@ -35,16 +37,16 @@ public class ChatModel {
 
         client.sendAsync(request, HttpResponse.BodyHandlers.ofLines())
                 .thenAccept(response -> response.body()
-                        .map(line -> {
+                        .forEach(line -> {
                             try {
-                                return mapper.readValue(line, NtfyMessageDto.class);
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
+                                NtfyMessageDto msg = mapper.readValue(line, NtfyMessageDto.class);
+                                if ("message".equals(msg.event())) {
+                                    Platform.runLater(() -> messages.add(msg.message()));
+                                    System.out.println(msg);
+                                }
+                            } catch (Exception ignored) {
                             }
                         })
-                        .filter(msg -> "message".equals(msg.event()))
-                        .peek(System.out::println)
-                        .forEach(msg -> Platform.runLater(() -> messages.add(msg.message())))
                 );
     }
 
@@ -68,5 +70,6 @@ public class ChatModel {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record NtfyMessageDto(String id, long time, String event, String topic, String message) { }
+    public record NtfyMessageDto(String id, long time, String event, String topic, String message) {
+    }
 }
