@@ -50,18 +50,19 @@ public class ChatModel {
 
     public boolean sendMessage(String message) {
         try {
+            String jsonBody = String.format("{\"topic\": \"%s\", \"message\": \"%s\"}", topic, message);
             var request = HttpRequest.newBuilder()
-                    .uri(URI.create(serverAddress + "/" + topic))
-                    .header("Cache", "no")
-                    .POST(HttpRequest.BodyPublishers.ofString(message))
+                    .uri(URI.create(serverAddress))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                     .build();
 
             client.send(request, HttpResponse.BodyHandlers.discarding());
             return true;
         } catch (IOException e) {
-            System.out.println("Kunde inte skicka meddelandet");
+            System.out.println("Det gick tyvärr inte att skicka meddelandet.");
         } catch (InterruptedException e) {
-            System.out.println("Skickandet av meddelandet avbröts");
+            System.out.println("Försöket att skicka meddelandet avbröts tyvärr.");
         }
         return false;
     }
