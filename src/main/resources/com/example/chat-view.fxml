@@ -1,41 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.VBox?>
+
 <VBox xmlns:fx="http://javafx.com/fxml"
-      xmlns="http://javafx.com/javafx"
-      fx:controller="com.example.ChatController"
-      prefWidth="640" prefHeight="448"
-      spacing="0"
-      style="-fx-background-color: transparent;">
-    <StackPane fx:id="messageStack" VBox.vgrow="ALWAYS"
-               style="-fx-background-color: transparent;">
-        <ImageView fx:id="backgroundPattern"
-                   pickOnBounds="true"
-                   preserveRatio="false"/>
-        <VBox fx:id="messageContainer"
-              style="-fx-background-color: transparent;"
-              StackPane.alignment="TOP_LEFT"/>
-        <ImageView fx:id="frameImage"
-                   pickOnBounds="true"
-                   preserveRatio="false"/>
-        <VBox alignment="BOTTOM_CENTER"
-              spacing="6"
-              StackPane.alignment="BOTTOM_CENTER">
-            <padding>
-                <Insets top="10" right="10" bottom="10" left="10"/>
-            </padding>
-            <TextField fx:id="messageInput"
-                       promptText="Skriv ett meddelande..."
-                       style="-fx-background-color: #fce5b6; -fx-border-color: #c6a55b; -fx-border-radius: 4;"/>
-            <HBox alignment="CENTER_RIGHT" spacing="10">
-                <Button text="Skicka till server" onAction="#handleSendMessage"
-                        style="-fx-background-color: #deb887; -fx-border-color: #8b5a2b; -fx-border-radius: 4;"/>
-                <Button text="Lägg till lokalt" onAction="#handleLocalMessage"
-                        style="-fx-background-color: #f4c07a; -fx-border-color: #8b5a2b; -fx-border-radius: 4;"/>
-            </HBox>
-        </VBox>
-    </StackPane>
+      fx:controller="com.example.ChatController">
+    <TextField fx:id="messageInput" promptText="Skriv ett meddelande..."/>
+    <Button text="Skicka till server" onAction="#handleSendMessage"/>
+    <Button text="Lägg till lokalt" onAction="#handleLocalMessage"/>
 </VBox>
