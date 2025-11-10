@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.example.ChatController">
+      fx:controller="com.example.ChatetrisController">
     <TextField fx:id="messageInput" promptText="Skriv ett meddelande..."/>
     <Button text="Skicka till server" onAction="#handleSendMessage"/>
     <Button text="Lägg till lokalt" onAction="#handleLocalMessage"/>

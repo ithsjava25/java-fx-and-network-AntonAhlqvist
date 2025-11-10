@@ -5,7 +5,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Button;
 
-public class ChatController {
+public class ChatetrisController {
 
     @FXML
     TextField messageInput;
@@ -17,12 +17,12 @@ public class ChatController {
     Button localButton;
 
     private final String serverAddress;
-    private final ChatModel model;
+    private final ChatetrisModel model;
 
-    public ChatController() {
+    public ChatetrisController() {
         Dotenv dotenv = Dotenv.load();
         serverAddress = dotenv.get("HOST_NAME");
-        model = new ChatModel(serverAddress);
+        model = new ChatetrisModel(serverAddress);
     }
 
     @FXML

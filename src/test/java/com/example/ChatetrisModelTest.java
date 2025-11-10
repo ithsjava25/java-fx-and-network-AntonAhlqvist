@@ -11,7 +11,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @WireMockTest
-public class ChatModelTest {
+public class ChatetrisModelTest {
 
     @Test
     @DisplayName("Given a message when sendMessage is called then it should be sent via connection")
@@ -41,7 +41,7 @@ public class ChatModelTest {
     }
 
     /**
-     * Förenklad testversion av ChatModel.
+     * Förenklad testversion av ChatetrisModel.
      * Testar bara logiken i sendMessage() utan riktiga HTTP-anrop.
      */
 
@@ -66,7 +66,7 @@ public class ChatModelTest {
     @DisplayName("Given a message when sendMessage is called then POST should be sent to /mytopic")
     void sendMessagesToFakeServer(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
         String fakeServerUrl = "http://localhost:" + wmRuntimeInfo.getHttpPort();
-        ChatModel model = new ChatModel(fakeServerUrl);
+        ChatetrisModel model = new ChatetrisModel(fakeServerUrl);
 
         stubFor(post("/mytopic").willReturn(aResponse().withStatus(200)));
 
@@ -85,7 +85,7 @@ public class ChatModelTest {
     @DisplayName("Given JSON stream from server when receiveMessage is called then messages are parsed")
     void receiveMessagesFromFakeServer(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
         String fakeServerUrl = "http://localhost:" + wmRuntimeInfo.getHttpPort();
-        ChatModel model = new ChatModel(fakeServerUrl);
+        ChatetrisModel model = new ChatetrisModel(fakeServerUrl);
 
         String jsonStream = """
                 {"event":"keepalive"}

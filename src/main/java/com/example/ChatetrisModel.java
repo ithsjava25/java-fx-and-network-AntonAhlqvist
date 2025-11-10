@@ -12,7 +12,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-public class ChatModel {
+public class ChatetrisModel {
 
     private final String serverAddress;
     private final String topic = "mytopic";
@@ -24,7 +24,7 @@ public class ChatModel {
         return messages;
     }
 
-    public ChatModel(String serverAddress) {
+    public ChatetrisModel(String serverAddress) {
         this.serverAddress = serverAddress;
         receiveMessage();
     }

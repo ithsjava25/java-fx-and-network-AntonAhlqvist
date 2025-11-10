@@ -9,7 +9,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ChatControllerTest {
+class ChatetrisControllerTest {
 
     @Test
     @DisplayName("Given a message input when handleLocalMessage is called then it should appear in messageList")
@@ -24,7 +24,7 @@ class ChatControllerTest {
     }
 
     /**
-     * Förenklad testversion av ChatController.
+     * Förenklad testversion av ChatetrisController.
      * Testar bara logiken i handleLocalMessage() genom att jämföra texten som läggs till i listan,
      * utan att starta JavaFX-gränssnittet.
      */
