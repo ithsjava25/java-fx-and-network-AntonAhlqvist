@@ -17,17 +17,16 @@
           pickOnBounds="false"/>
     <ImageView fx:id="frameImage"
                fitWidth="640" fitHeight="640"/>
-    <AnchorPane fx:id="uiLayer"
-                prefHeight="128"
-                StackPane.alignment="BOTTOM_CENTER"
-                style="-fx-background-color: transparent;">
+    <AnchorPane
+            prefHeight="128"
+            StackPane.alignment="BOTTOM_CENTER">
         <TextField fx:id="messageInput"
-                   promptText="Skriv något kul."
+                   promptText="Skriv något kul på tetrisblock!"
                    AnchorPane.leftAnchor="64"
                    AnchorPane.rightAnchor="256"
                    AnchorPane.bottomAnchor="32"/>
-        <Button text="Du skrev inte så kul."
-                onAction="#handleLocalMessage"
+        <Button text="Skapa tetrisblock!"
+                onAction="#tbButton"
                 AnchorPane.rightAnchor="64"
                 AnchorPane.bottomAnchor="32"
                 prefWidth="160"/>

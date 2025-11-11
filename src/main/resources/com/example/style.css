@@ -1,0 +1,6 @@
+.tetrisblock {
+    -fx-background-color: brown;
+    -fx-border-color: black;
+    -fx-border-size: 2;
+    -fx-text-fill: white;
+}
