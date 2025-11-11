@@ -1,11 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<StackPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root"
+           fx:controller="com.example.ChatetrisController"
+           stylesheets="@style.css">
 
-<VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.example.ChatetrisController">
-    <TextField fx:id="messageInput" promptText="Skriv ett meddelande..."/>
-    <Button text="Skicka till server" onAction="#handleSendMessage"/>
-    <Button text="Lägg till lokalt" onAction="#handleLocalMessage"/>
-</VBox>
+    <ImageView fx:id="backgroundImage"
+               fitWidth="640" fitHeight="640"/>
+    <Pane fx:id="messageLayer"
+          layoutX="64" layoutY="64"
+          prefWidth="512" prefHeight="448"
+          StackPane.alignment="TOP_LEFT"
+          pickOnBounds="false"/>
+    <ImageView fx:id="frameImage"
+               fitWidth="640" fitHeight="640"/>
+    <AnchorPane fx:id="uiLayer"
+                prefHeight="128"
+                StackPane.alignment="BOTTOM_CENTER"
+                style="-fx-background-color: transparent;">
+        <TextField fx:id="messageInput"
+                   promptText="Skriv något kul."
+                   AnchorPane.leftAnchor="64"
+                   AnchorPane.rightAnchor="256"
+                   AnchorPane.bottomAnchor="32"/>
+        <Button text="Du skrev inte så kul."
+                onAction="#handleLocalMessage"
+                AnchorPane.rightAnchor="64"
+                AnchorPane.bottomAnchor="32"
+                prefWidth="160"/>
+    </AnchorPane>
+</StackPane>

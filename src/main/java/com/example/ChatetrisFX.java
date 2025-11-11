@@ -12,10 +12,11 @@ public class ChatetrisFX extends Application {
     public void start(Stage stage) throws Exception {
         FXMLLoader fxmlLoader = new FXMLLoader(ChatetrisFX.class.getResource("chatetris-view.fxml"));
         Parent root = fxmlLoader.load();
-        Scene scene = new Scene(root, 640, 480);
+        Scene scene = new Scene(root, 640, 640);
         stage.setTitle("Chatetris");
         stage.setScene(scene);
         stage.show();
+        stage.setResizable(false);
     }
 
     static void main() {
