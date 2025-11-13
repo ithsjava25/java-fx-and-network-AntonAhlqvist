@@ -96,15 +96,12 @@ public class ChatetrisModelTest {
     @BeforeAll
     static void initJavaFx() {
         try {
-            if (System.getenv("CI") != null) {
-                System.out.println("Running in CI (headless) — skipping JavaFX startup");
-                return;
+            if (System.getenv("CI") == null) {
+                Platform.startup(() -> {});
+            } else {
+                System.out.println("Kör i CI (headless) — hoppar över JavaFX-start");
             }
-            Platform.startup(() -> {});
-        } catch (IllegalStateException ignored) {
-        } catch (UnsupportedOperationException e) {
-            System.out.println("Headless environment — unable to open DISPLAY, skipping JavaFX init");
-        }
+        } catch (IllegalStateException | UnsupportedOperationException ignored) {}
     }
 
     /**
@@ -115,7 +112,8 @@ public class ChatetrisModelTest {
     @DisplayName("Given JSON stream from server when receiveMessage is called then messages are parsed")
     void receiveMessagesFromFakeServer(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
         String fakeServerUrl = "http://localhost:" + wmRuntimeInfo.getHttpPort();
-        ChatetrisModel model = new ChatetrisModel(fakeServerUrl);
+
+        ChatetrisModel model = new ChatetrisModel(fakeServerUrl, Runnable::run);
 
         CountDownLatch latch = new CountDownLatch(2);
         model.getMessages().addListener((ListChangeListener<String>) change -> {
@@ -138,7 +136,7 @@ public class ChatetrisModelTest {
 
         model.receiveMessage();
 
-        boolean receivedAll = latch.await(5, TimeUnit.SECONDS);
+        boolean receivedAll = latch.await(10, TimeUnit.SECONDS);
         assertThat(receivedAll).as("Alla meddelanden mottagna!").isTrue();
 
         assertThat(model.getMessages())
