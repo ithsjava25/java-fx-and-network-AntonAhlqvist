@@ -43,7 +43,7 @@ public class ChatetrisModel {
         if (receiving.get()) return;
         receiving.set(true);
 
-        var request = HttpRequest.newBuilder()
+        HttpRequest request = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create(serverAddress + "/" + topic + "/json"))
                 .build();
@@ -54,17 +54,31 @@ public class ChatetrisModel {
                         try {
                             NtfyMessageDto msg = mapper.readValue(line, NtfyMessageDto.class);
                             if ("message".equals(msg.event())) {
-                                uiExecutor.accept(() -> {
-                                    if (!messages.contains(msg.message())) {
-                                        messages.add(msg.message());
+
+                                Runnable task = new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (!messages.contains(msg.message())) {
+                                            messages.add(msg.message());
+                                        }
                                     }
-                                });
+                                };
+
+                                runOnUi(task);
                                 System.out.println(msg);
                             }
                         } catch (Exception ignored) {}
                     });
                 })
                 .whenComplete((res, ex) -> receiving.set(false));
+    }
+
+    private void runOnUi(Runnable task) {
+        try {
+            uiExecutor.accept(task);
+        } catch (IllegalStateException e) {
+            task.run();
+        }
     }
 
     public boolean sendMessage(String message) {
