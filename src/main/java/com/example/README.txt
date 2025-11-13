@@ -1,7 +1,26 @@
-Plan för Chatetris – chat med tetrisinspirerat UI  (version 1.0)
+Plan för Chatetris – chat med tetrisinspirerat UI  (version 2.0)
 
+Denna README är tänkt att uppdateras i takt med att nya funktioner implementerats. Den senaste versionen innehåller en målbild över det som har högst prioritet för tillfället. När målen som sammanfattats i denna text är uppfyllda uppdateras målbilden, och så kommer det att fortsätta tills inlämningsdatum eftersom alla funktioner inte kommer att hinna uppnås.
 
-Denna README är tänkt att uppdateras i takt med att nya funktioner implementerats. Version 1.0 innehåller en målbild över det som har högst prioritet för tillfället. När målen som sammanfattats i denna text är uppfyllda uppdateras målbilden, och så kommer det att fortsätta tills inlämningsdatum eftersom alla funktioner inte kommer att hinna uppnås.
+---------
+
+Nytt sedan senast:
+
+* Textinmatning skrivs ut på labels.
+
+* Labelns bredd påverkas av meddelandets längd.
+
+---------
+
+Nya mål:
+
+* Uppdatera utseendet så att att varje label får en ”trä-bakgrund”, olika bakgrundsbilder, beroende på meddelandets längd.
+
+* Importera fin font och hitta lämplig storlek och placering för meddelandet på labeln.
+
+* Lägg till scrollfunktion.
+
+---------
 
 Lager (räknade från det ”understa” till det ”översta”):
 
@@ -30,9 +49,3 @@ Ramen utgörs av en .png-bild med en transparent rektangel i mitten. Den transpa
 4 – Interaktiva styrfunktioner
 
 Ramens nedre del är extra tjock för att ge utrymme åt textfält och knappar.
-
-Saker kvar att göra tills README 2.0:
-
-1 - Textfältet ska kopplas till lablar/tetrisblock så att meddelandena skrivs ut på dem.
-
-2 - Funktion behövs för att skapa olika stora labels beroende på hur många chars meddelandet har.

@@ -2,8 +2,10 @@ package com.example;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -25,27 +27,32 @@ public class ChatetrisController {
     private
     Pane messageLayer;
 
-    private int messageCount = 0;
-
     @FXML
     void tbButton() {
-        messageCount++;
+        String messageText = messageInput.getText();
 
         int TILE_SIZE = 64;
+        int charWidth = 8;
+        int textLength = messageText.length();
+
+        int steps = (textLength * charWidth + TILE_SIZE - 1) / TILE_SIZE;
+        if (steps < 1) steps = 1;
+        if (steps > 8) steps = 8;
+
+        int blockWidth = steps * TILE_SIZE;
 
         for (int i = 0; i < messageLayer.getChildren().size(); i++) {
             var block = messageLayer.getChildren().get(i);
-            double oldY = block.getLayoutY();
-            double newY = oldY + TILE_SIZE;
-            block.setLayoutY(newY);
+            block.setLayoutY(block.getLayoutY() + TILE_SIZE);
         }
 
-        Label tb = new Label(String.valueOf(messageCount));
-
-        tb.setPrefSize(TILE_SIZE, TILE_SIZE);
-        tb.getStyleClass().add("tetrisblock");
+        Label tb = new Label(messageText);
+        tb.setPrefSize(blockWidth, TILE_SIZE);
         tb.setLayoutX(64);
         tb.setLayoutY(64);
+        tb.setAlignment(Pos.CENTER);
+        tb.getStyleClass().add("tetrisblock");
+        tb.setTextOverrun(OverrunStyle.CLIP);
 
         messageLayer.getChildren().add(tb);
     }
