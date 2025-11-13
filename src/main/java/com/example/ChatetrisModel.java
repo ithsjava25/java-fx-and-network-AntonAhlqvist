@@ -11,6 +11,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ChatetrisModel {
 
@@ -20,6 +21,7 @@ public class ChatetrisModel {
     private final ObjectMapper mapper = new ObjectMapper();
 
     private final ObservableList<String> messages = FXCollections.observableArrayList();
+    private final AtomicBoolean receiving = new AtomicBoolean(false);
     public ObservableList<String> getMessages() {
         return messages;
     }
@@ -30,6 +32,9 @@ public class ChatetrisModel {
     }
 
     public void receiveMessage() {
+        if (!receiving.compareAndSet(false, true)) {
+            return;
+        }
         var request = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create(serverAddress + "/" + topic + "/json"))
@@ -42,15 +47,17 @@ public class ChatetrisModel {
                                 NtfyMessageDto msg = mapper.readValue(line, NtfyMessageDto.class);
                                 if ("message".equals(msg.event())) {
                                     Platform.runLater(() -> {
-                                        if (!messages.contains(msg.message()))
+                                        if (!messages.contains(msg.message())) {
                                             messages.add(msg.message());
+                                        }
                                     });
                                     System.out.println(msg);
                                 }
                             } catch (Exception ignored) {
                             }
                         })
-                );
+                )
+                .whenComplete((res, ex) -> receiving.set(false));
     }
 
     public boolean sendMessage(String message) {
