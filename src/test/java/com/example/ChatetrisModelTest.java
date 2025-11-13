@@ -96,8 +96,14 @@ public class ChatetrisModelTest {
     @BeforeAll
     static void initJavaFx() {
         try {
+            if (System.getenv("CI") != null) {
+                System.out.println("Running in CI (headless) — skipping JavaFX startup");
+                return;
+            }
             Platform.startup(() -> {});
         } catch (IllegalStateException ignored) {
+        } catch (UnsupportedOperationException e) {
+            System.out.println("Headless environment — unable to open DISPLAY, skipping JavaFX init");
         }
     }
 
