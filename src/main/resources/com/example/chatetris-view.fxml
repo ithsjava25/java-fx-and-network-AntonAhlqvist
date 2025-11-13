@@ -18,16 +18,22 @@
     <ImageView fx:id="frameImage"
                fitWidth="640" fitHeight="640"/>
     <AnchorPane
-            prefHeight="128"
+            prefHeight="160"
             StackPane.alignment="BOTTOM_CENTER">
         <TextField fx:id="messageInput"
                    promptText="Skriv något kul på tetrisblock!"
                    AnchorPane.leftAnchor="64"
-                   AnchorPane.rightAnchor="256"
-                   AnchorPane.bottomAnchor="32"/>
+                   AnchorPane.rightAnchor="64"
+                   AnchorPane.bottomAnchor="80"/>
         <Button text="Skapa tetrisblock!"
                 onAction="#tbButton"
                 AnchorPane.rightAnchor="64"
+                AnchorPane.bottomAnchor="32"
+                prefWidth="160"/>
+        <Button fx:id="sendButton"
+                text="Skicka till server"
+                onAction="#handleSendMessage"
+                AnchorPane.leftAnchor="64"
                 AnchorPane.bottomAnchor="32"
                 prefWidth="160"/>
     </AnchorPane>

@@ -41,7 +41,10 @@ public class ChatetrisModel {
                             try {
                                 NtfyMessageDto msg = mapper.readValue(line, NtfyMessageDto.class);
                                 if ("message".equals(msg.event())) {
-                                    Platform.runLater(() -> messages.add(msg.message()));
+                                    Platform.runLater(() -> {
+                                        if (!messages.contains(msg.message()))
+                                            messages.add(msg.message());
+                                    });
                                     System.out.println(msg);
                                 }
                             } catch (Exception ignored) {

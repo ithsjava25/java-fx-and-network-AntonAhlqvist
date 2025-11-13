@@ -2,10 +2,16 @@ package com.example;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
+import javafx.application.Platform;
+import javafx.collections.ListChangeListener;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import java.util.List;
+
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -13,6 +19,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 @WireMockTest
 public class ChatetrisModelTest {
 
+    /**
+     * Testar den förenklade sendMessage-logiken i modellen.
+     * Verifierar att ett meddelande som sätts på modellen faktiskt skickas
+     * till den "spion"-kopplade ChatConnection.
+     */
     @Test
     @DisplayName("Given a message when sendMessage is called then it should be sent via connection")
     void messagesSentToServer() {
@@ -30,7 +41,6 @@ public class ChatetrisModelTest {
     /**
      * Minimal spy som fångar skickade meddelanden.
      */
-
     static class ChatConnectionSpy {
         List<String> sentMessages = new ArrayList<>();
 
@@ -44,7 +54,6 @@ public class ChatetrisModelTest {
      * Förenklad testversion av ChatetrisModel.
      * Testar bara logiken i sendMessage() utan riktiga HTTP-anrop.
      */
-
     static class ChatModelForTest {
         String messageToSend;
         ChatConnectionSpy connection;
@@ -60,26 +69,41 @@ public class ChatetrisModelTest {
 
     /**
      * WireMock-test som simulerar servern.
-     * Verifierar att POST skickas korrekt till /mytopic med rätt meddelande.
+     * Verifierar att POST skickas korrekt till root "/" med rätt meddelande.
      */
     @Test
-    @DisplayName("Given a message when sendMessage is called then POST should be sent to /mytopic")
+    @DisplayName("Given a message when sendMessage is called then POST should be sent to /")
     void sendMessagesToFakeServer(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
         String fakeServerUrl = "http://localhost:" + wmRuntimeInfo.getHttpPort();
-        ChatetrisModel model = new ChatetrisModel(fakeServerUrl);
+        ChatetrisModel model = new ChatetrisModel(fakeServerUrl) {
+            @Override
+            public void receiveMessage() {
+            }
+        };
 
-        stubFor(post("/mytopic").willReturn(aResponse().withStatus(200)));
+        stubFor(post("/").willReturn(aResponse().withStatus(200)));
 
         String testMessage = "Hejsan svejsan!";
         model.sendMessage(testMessage);
+        verify(postRequestedFor(urlEqualTo("/"))
+                .withRequestBody(equalTo("{\"topic\": \"mytopic\", \"message\": \"" + testMessage + "\"}")));
+    }
 
-        verify(postRequestedFor(urlEqualTo("/mytopic"))
-                .withRequestBody(equalTo(testMessage)));
+    /**
+     * Startar JavaFX-plattformen en gång före alla tester.
+     * Krävs för att ObservableList och Platform.runLater ska fungera i tester.
+     */
+    @BeforeAll
+    static void initJavaFx() {
+        try {
+            Platform.startup(() -> {});
+        } catch (IllegalStateException ignored) {
+        }
     }
 
     /**
      * WireMock-test som simulerar serverns JSON-ström.
-     * Verifierar att mottagna "message"-event parsas, och visas i chatten.
+     * Verifierar att mottagna "message"-event parsas och visas i chatten.
      */
     @Test
     @DisplayName("Given JSON stream from server when receiveMessage is called then messages are parsed")
@@ -87,23 +111,30 @@ public class ChatetrisModelTest {
         String fakeServerUrl = "http://localhost:" + wmRuntimeInfo.getHttpPort();
         ChatetrisModel model = new ChatetrisModel(fakeServerUrl);
 
+        CountDownLatch latch = new CountDownLatch(2);
+        model.getMessages().addListener((ListChangeListener<String>) change -> {
+            while (change.next()) {
+                if (change.wasAdded()) latch.countDown();
+            }
+        });
+
         String jsonStream = """
-                {"event":"keepalive"}
-                {"event":"message","message":"Hej från servern!"}
-                {"event":"message","message":"Och en till!"}
-                """;
+            {"event":"keepalive"}
+            {"event":"message","message":"Hej från servern!"}
+            {"event":"message","message":"och en till gång! :-)"}
+            """;
 
         stubFor(get("/mytopic/json")
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withBody(jsonStream)
-                        .withHeader("content-type", "application/json")));
+                        .withHeader("content-type", "application/x-ndjson")));
 
         model.receiveMessage();
 
-        Thread.sleep(200);
+        latch.await(1, TimeUnit.SECONDS);
 
         assertThat(model.getMessages())
-                .contains("Hej från servern!", "Och en till!");
+                .containsExactly("Hej från servern!", "och en till gång! :-)");
     }
 }
