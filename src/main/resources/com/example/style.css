@@ -1,6 +1,9 @@
 .tetrisblock {
-    -fx-background-color: brown;
-    -fx-border-color: black;
-    -fx-border-size: 2;
-    -fx-text-fill: white;
+    -fx-font-family: "Lucida Handwriting";
+    -fx-font-style: italic;
+    -fx-font-weight: bold;
+    -fx-font-size: 18px;
+    -fx-text-fill: Black;
+    -fx-border-color: Peru;
+    -fx-border-width: 2px;
 }

@@ -10,6 +10,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.Text;
 
 public class ChatetrisController {
 
@@ -32,13 +35,16 @@ public class ChatetrisController {
         String messageText = messageInput.getText();
 
         int TILE_SIZE = 64;
-        int charWidth = 8;
-        int textLength = messageText.length();
 
-        int steps = (textLength * charWidth + TILE_SIZE - 1) / TILE_SIZE;
+        Text temp = new Text(messageText);
+        temp.setFont(Font.font("Lucida Handwriting", FontPosture.ITALIC, 18));
+        double textPixelWidth = temp.getLayoutBounds().getWidth();
+
+        int MARGIN = 32;
+
+        int steps = (int) Math.ceil((textPixelWidth + MARGIN) / TILE_SIZE);
         if (steps < 1) steps = 1;
         if (steps > 8) steps = 8;
-
         int blockWidth = steps * TILE_SIZE;
 
         for (int i = 0; i < messageLayer.getChildren().size(); i++) {
@@ -51,8 +57,29 @@ public class ChatetrisController {
         tb.setLayoutX(64);
         tb.setLayoutY(64);
         tb.setAlignment(Pos.CENTER);
-        tb.getStyleClass().add("tetrisblock");
         tb.setTextOverrun(OverrunStyle.CLIP);
+
+        tb.getStyleClass().add("tetrisblock");
+
+        String imageName = switch (steps) {
+            case 1 -> "Wood_Label_One_Unit.png";
+            case 2 -> "Wood_Label_Two_Units.png";
+            case 3 -> "Wood_Label_Three_Units.png";
+            case 4 -> "Wood_Label_Four_Units.png";
+            case 5 -> "Wood_Label_Five_Units.png";
+            case 6 -> "Wood_Label_Six_Units.png";
+            case 7 -> "Wood_Label_Seven_Units.png";
+            case 8 -> "Wood_Label_Eight_Units.png";
+            default -> "Wood_Label_One_Unit.png";
+        };
+
+        Image background = new Image(getClass().getResource("/Images/" + imageName).toExternalForm());
+        tb.setStyle(
+                "-fx-background-image: url('" + background.getUrl() + "'); " +
+                        "-fx-background-size: cover; " +
+                        "-fx-background-repeat: no-repeat; " +
+                        "-fx-background-position: center;"
+        );
 
         messageLayer.getChildren().add(tb);
     }
@@ -68,23 +95,21 @@ public class ChatetrisController {
 
     @FXML
     private void initialize() {
+
+        Font.loadFont(
+                getClass().getResource("/Fonts/LucidaHandwritingItalic.ttf").toExternalForm(),
+                20
+        );
         backgroundImage.setImage(new Image(
                 getClass().getResource("/Images/Seamless_Brown_Wood_With_Light_Brown_Grid.png").toExternalForm()
         ));
         frameImage.setImage(new Image(
-                getClass().getResource("/Images/Dark_Brown_Wood_Frame.png").toExternalForm()
+                getClass().getResource("/Images/Dark_Brown_Wood_Frame_With_Text.png").toExternalForm()
         ));
     }
 
     @FXML
     Button sendButton;
-
-    @FXML
-    Button localButton;
-
-    @FXML
-    void handleLocalMessage() {
-    }
 
     @FXML
     void handleSendMessage() {
