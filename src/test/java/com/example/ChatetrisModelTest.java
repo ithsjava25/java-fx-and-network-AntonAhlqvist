@@ -138,7 +138,8 @@ public class ChatetrisModelTest {
 
         model.receiveMessage();
 
-        latch.await(1, TimeUnit.SECONDS);
+        boolean receivedAll = latch.await(5, TimeUnit.SECONDS);
+        assertThat(receivedAll).as("Alla meddelanden mottagna!").isTrue();
 
         assertThat(model.getMessages())
                 .containsExactly("Hej från servern!", "och en till gång! :-)");

@@ -12,6 +12,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 public class ChatetrisModel {
 
@@ -22,41 +23,47 @@ public class ChatetrisModel {
 
     private final ObservableList<String> messages = FXCollections.observableArrayList();
     private final AtomicBoolean receiving = new AtomicBoolean(false);
+    private final Consumer<Runnable> uiExecutor;
+
     public ObservableList<String> getMessages() {
         return messages;
     }
 
     public ChatetrisModel(String serverAddress) {
+        this(serverAddress, Platform::runLater);
+    }
+
+    public ChatetrisModel(String serverAddress, Consumer<Runnable> uiExecutor) {
         this.serverAddress = serverAddress;
+        this.uiExecutor = uiExecutor;
         receiveMessage();
     }
 
     public void receiveMessage() {
-        if (!receiving.compareAndSet(false, true)) {
-            return;
-        }
+        if (receiving.get()) return;
+        receiving.set(true);
+
         var request = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create(serverAddress + "/" + topic + "/json"))
                 .build();
 
         client.sendAsync(request, HttpResponse.BodyHandlers.ofLines())
-                .thenAccept(response -> response.body()
-                        .forEach(line -> {
-                            try {
-                                NtfyMessageDto msg = mapper.readValue(line, NtfyMessageDto.class);
-                                if ("message".equals(msg.event())) {
-                                    Platform.runLater(() -> {
-                                        if (!messages.contains(msg.message())) {
-                                            messages.add(msg.message());
-                                        }
-                                    });
-                                    System.out.println(msg);
-                                }
-                            } catch (Exception ignored) {
+                .thenAccept(response -> {
+                    response.body().forEach(line -> {
+                        try {
+                            NtfyMessageDto msg = mapper.readValue(line, NtfyMessageDto.class);
+                            if ("message".equals(msg.event())) {
+                                uiExecutor.accept(() -> {
+                                    if (!messages.contains(msg.message())) {
+                                        messages.add(msg.message());
+                                    }
+                                });
+                                System.out.println(msg);
                             }
-                        })
-                )
+                        } catch (Exception ignored) {}
+                    });
+                })
                 .whenComplete((res, ex) -> receiving.set(false));
     }
 
