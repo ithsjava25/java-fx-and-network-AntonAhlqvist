@@ -1,6 +1,8 @@
 package com.example;
 
 import io.github.cdimascio.dotenv.Dotenv;
+import javafx.animation.Interpolator;
+import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -13,6 +15,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 
 public class ChatetrisController {
 
@@ -49,13 +52,23 @@ public class ChatetrisController {
 
         for (int i = 0; i < messageLayer.getChildren().size(); i++) {
             var block = messageLayer.getChildren().get(i);
-            block.setLayoutY(block.getLayoutY() + TILE_SIZE);
+            double targetY = block.getLayoutY() + TILE_SIZE;
+
+            TranslateTransition tt = new TranslateTransition(Duration.millis(300), block);
+            tt.setToY(targetY - block.getLayoutY());
+            tt.setInterpolator(Interpolator.EASE_BOTH);
+            int finalI = i;
+            tt.setOnFinished(e -> {
+                block.setLayoutY(targetY);
+                block.setTranslateY(0);
+            });
+            tt.play();
         }
 
         Label tb = new Label(messageText);
         tb.setPrefSize(blockWidth, TILE_SIZE);
         tb.setLayoutX(64);
-        tb.setLayoutY(64);
+        tb.setLayoutY(64 - TILE_SIZE);
         tb.setAlignment(Pos.CENTER);
         tb.setTextOverrun(OverrunStyle.CLIP);
 
@@ -82,6 +95,15 @@ public class ChatetrisController {
         );
 
         messageLayer.getChildren().add(tb);
+
+        TranslateTransition ttNew = new TranslateTransition(Duration.millis(300), tb);
+        ttNew.setToY(TILE_SIZE);
+        ttNew.setInterpolator(Interpolator.EASE_BOTH);
+        ttNew.setOnFinished(e -> {
+            tb.setLayoutY(64);
+            tb.setTranslateY(0);
+        });
+        ttNew.play();
     }
 
     private final String serverAddress;
