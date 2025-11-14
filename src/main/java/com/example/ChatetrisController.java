@@ -33,6 +33,16 @@ public class ChatetrisController {
     private
     Pane messageLayer;
 
+    /**
+     * Creates and animates a tetris-style message block from the current input text and adds it to the message layer.
+     *
+     * The method measures the message width to compute a block width that spans 1–8 tile units, selects a matching
+     * wood-background image, shifts existing blocks down by one tile with an ease animation, places the new block above
+     * the stack, and animates it into position.
+     *
+     * - Tile size is 64 pixels and margin for width calculation is 32 pixels.
+     * - Computed step count is clamped to the range 1 through 8 and determines the background image used.
+     */
     @FXML
     void tbButton() {
         String messageText = messageInput.getText();
@@ -109,12 +119,26 @@ public class ChatetrisController {
     private final String serverAddress;
     private final ChatetrisModel model;
 
+    /**
+     * Creates a ChatetrisController and initializes its model using the `HOST_NAME` environment variable.
+     *
+     * The constructor loads environment variables, assigns `serverAddress` from `HOST_NAME`, and constructs a
+     * ChatetrisModel with that address.
+     */
     public ChatetrisController() {
         Dotenv dotenv = Dotenv.load();
         serverAddress = dotenv.get("HOST_NAME");
         model = new ChatetrisModel(serverAddress);
     }
 
+    /**
+     * Initializes UI resources for the controller by loading the handwritten font and setting
+     * the background and frame images from bundled resources.
+     *
+     * Loads "/Fonts/LucidaHandwritingItalic.ttf" at 20pt and sets:
+     * "/Images/Seamless_Brown_Wood_With_Light_Brown_Grid.png" as the backgroundImage and
+     * "/Images/Dark_Brown_Wood_Frame_With_Text.png" as the frameImage.
+     */
     @FXML
     private void initialize() {
 
@@ -133,6 +157,9 @@ public class ChatetrisController {
     @FXML
     Button sendButton;
 
+    /**
+     * Sends the current text from the message input to the model.
+     */
     @FXML
     void handleSendMessage() {
         String message = messageInput.getText();
