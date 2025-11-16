@@ -52,6 +52,10 @@ public class ChatetrisController {
         model = new ChatetrisModel(serverAddress);
     }
 
+    /**
+     * Kopplar ihop lyssnare för inkommande meddelanden med UI:t och sätter gräns
+     * för max tillåten längd på meddelandena.
+     */
     @FXML
     private void initialize() {
 
@@ -65,6 +69,23 @@ public class ChatetrisController {
         frameImage.setImage(new Image(
                 getClass().getResource("/Images/Dark_Brown_Wood_Frame_With_Text.png").toExternalForm()
         ));
+
+        model.getMessages().addListener((javafx.collections.ListChangeListener<String>) change -> {
+            while (change.next()) {
+                if (change.wasAdded()) {
+                    for (String msg : change.getAddedSubList()) {
+                        javafx.application.Platform.runLater(() -> showIncomingMessages(msg, true));
+                    }
+                }
+            }
+        });
+
+        final int MAX_LENGTH = 45;
+        messageInput.textProperty().addListener((obs, oldText, newText) -> {
+            if (newText.length() > MAX_LENGTH) {
+                messageInput.setText(oldText);
+            }
+        });
     }
 
     /**
@@ -183,5 +204,86 @@ public class ChatetrisController {
             tb.setTranslateY(0);
         });
         ttNew.play();
+    }
+
+    /**
+     * Hanterar inkommande meddelanden genom att skapa ett mer rödfärgat block.
+     * Det väntar en liten stund så att tidigare animationer hinner klart,
+     * och släpper sedan in det nya blocket från toppen med samma animation
+     * som de tidigare blocken. Nästan allt annat fungerar som när man skickar block,
+     * men anpassat för meddelanden som kommer från servern.
+     */
+    @FXML
+    void showIncomingMessages(String messageText, boolean animateDown) {
+        int TILE_SIZE = 64;
+
+        javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(Duration.millis(350));
+        delay.setOnFinished(event -> {
+
+            for (int i = 0; i < messageLayer.getChildren().size(); i++) {
+                var block = messageLayer.getChildren().get(i);
+                double targetY = block.getLayoutY() + TILE_SIZE;
+
+                TranslateTransition tt = new TranslateTransition(Duration.millis(300), block);
+                tt.setToY(targetY - block.getLayoutY());
+                tt.setInterpolator(Interpolator.EASE_BOTH);
+                tt.setOnFinished(e -> {
+                    block.setLayoutY(targetY);
+                    block.setTranslateY(0);
+                });
+                tt.play();
+            }
+
+            Text temp = new Text(messageText);
+            temp.setFont(Font.font("Lucida Handwriting", FontPosture.ITALIC, 18));
+            double textPixelWidth = temp.getLayoutBounds().getWidth();
+
+            int MARGIN = 32;
+            int steps = (int) Math.ceil((textPixelWidth + MARGIN) / TILE_SIZE);
+            if (steps < 1) steps = 1;
+            if (steps > 8) steps = 8;
+            int blockWidth = steps * TILE_SIZE;
+
+            Label tb = new Label(messageText);
+            tb.setPrefSize(blockWidth, TILE_SIZE);
+            tb.setLayoutX(64 + (8 - steps) * TILE_SIZE);
+            tb.setLayoutY(64 - TILE_SIZE);
+            tb.setAlignment(Pos.CENTER);
+            tb.setTextOverrun(OverrunStyle.CLIP);
+            tb.getStyleClass().add("tetrisblock");
+
+            String imageName = switch (steps) {
+                case 1 -> "Red_Wood_Label_One_Unit.png";
+                case 2 -> "Red_Wood_Label_Two_Units.png";
+                case 3 -> "Red_Wood_Label_Three_Units.png";
+                case 4 -> "Red_Wood_Label_Four_Units.png";
+                case 5 -> "Red_Wood_Label_Five_Units.png";
+                case 6 -> "Red_Wood_Label_Six_Units.png";
+                case 7 -> "Red_Wood_Label_Seven_Units.png";
+                case 8 -> "Red_Wood_Label_Eight_Units.png";
+                default -> "Red_Wood_Label_One_Unit.png";
+            };
+
+            Image background = new Image(getClass().getResource("/Images/" + imageName).toExternalForm());
+            tb.setStyle(
+                    "-fx-background-image: url('" + background.getUrl() + "'); " +
+                            "-fx-background-size: cover; " +
+                            "-fx-background-repeat: no-repeat; " +
+                            "-fx-background-position: center;"
+            );
+
+            messageLayer.getChildren().add(tb);
+
+            TranslateTransition ttNew = new TranslateTransition(Duration.millis(300), tb);
+            ttNew.setToY(TILE_SIZE);
+            ttNew.setInterpolator(Interpolator.EASE_BOTH);
+            ttNew.setOnFinished(e -> {
+                tb.setLayoutY(64);
+                tb.setTranslateY(0);
+            });
+            ttNew.play();
+        });
+
+        delay.play();
     }
 }

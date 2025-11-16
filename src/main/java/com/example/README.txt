@@ -1,4 +1,4 @@
-Plan för Chatetris – chat med tetrisinspirerat UI  (version 3.0)
+Plan för Chatetris – chat med tetrisinspirerat UI  (version 4.0)
 
 Denna README är tänkt att uppdateras i takt med att nya funktioner implementerats. Den senaste versionen innehåller en målbild över det som har högst prioritet för tillfället. När målen som sammanfattats i denna text är uppfyllda uppdateras målbilden, och så kommer det att fortsätta tills inlämningsdatum eftersom alla funktioner inte kommer att hinna uppnås.
 
@@ -6,14 +6,12 @@ Denna README är tänkt att uppdateras i takt med att nya funktioner implementer
 
 Nytt sedan senast:
 
-* Uppdaterat utseende - labels/tetrisblock har bakgrundsbilder, textutskrifterna är omformaterade och har exempelvis ny font.
-* Labels/tetrisblock flyttas ner till nästa rad genom animering.
+* Skriv ut inkomna meddelandet på UI:t, men med scenens högersida som utgångspunkt, och med annan bakgrundsbild än de lokala meddelandenas.
 
 ---------
 
 Nya mål:
 
-* Skriv ut inkomna meddelandet på UI:t, men med scenens högersida som utgångspunkt, och med annan bakgrundsbild än de lokala meddelandenas.
 * Implementera ny "historik-funktion" med scrollbar lista över meddelanden och deras tidsstämplar, istället för att göra den primära scenen scrollbar.
 * Få meddelanden att animeras ner till lägsta lediga rad, snarare än att de alltid bara glider till nästa rad.
 

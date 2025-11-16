@@ -21,17 +21,21 @@
             prefHeight="160"
             StackPane.alignment="BOTTOM_CENTER">
         <TextField fx:id="messageInput"
-                   promptText="Skriv något kul på tetrisblock!"
+                   promptText="Skriv max 45 tecken (kortare om tecknen är smala):"
                    AnchorPane.leftAnchor="64"
                    AnchorPane.rightAnchor="64"
-                   AnchorPane.bottomAnchor="80"/>
-        <Button text="Skapa tetrisblock!"
+                   AnchorPane.bottomAnchor="80"
+                   style="-fx-text-fill: black;
+                  -fx-prompt-text-fill: black;
+                  -fx-font-family: 'Lucida Handwriting';
+                  -fx-font-style: italic;"/>
+        <Button text="Skapa lokalt tetrisblock!"
                 onAction="#tbButton"
                 AnchorPane.rightAnchor="64"
                 AnchorPane.bottomAnchor="32"
                 prefWidth="160"/>
         <Button fx:id="sendButton"
-                text="Skicka till server"
+                text="Skicka meddelande till server"
                 onAction="#handleSendAndTb"
                 AnchorPane.leftAnchor="64"
                 AnchorPane.bottomAnchor="32"

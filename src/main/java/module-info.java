@@ -6,6 +6,7 @@ module chatclient {
     requires com.fasterxml.jackson.databind;
     requires java.desktop;
     requires javafx.base;
+    requires javafx.graphics;
 
     opens com.example to javafx.fxml;
     exports com.example;

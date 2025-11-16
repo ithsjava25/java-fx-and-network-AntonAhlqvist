@@ -92,23 +92,21 @@ public class ChatetrisModel {
                             NtfyMessageDto msg = mapper.readValue(line, NtfyMessageDto.class);
                             if ("message".equals(msg.event())) {
 
-                                Runnable task = new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (!messages.contains(msg.message())) {
-                                            messages.add(msg.message());
-                                        }
-                                    }
-                                };
-
+                                Runnable task = () -> messages.add(msg.message());
                                 runOnUi(task);
                                 System.out.println(msg);
                             }
-                        } catch (Exception ignored) {
+                        } catch (Exception e) {
+                            System.err.println("Fel vid läsning av meddelande: " + e.getMessage());
                         }
                     });
                 })
-                .whenComplete((res, ex) -> receiving.set(false));
+                .whenComplete((res, ex) -> {
+                    if (ex != null) {
+                        System.err.println("Lyssningen avslutades med fel: " + ex.getMessage());
+                    }
+                    receiving.set(false);
+                });
     }
 
     /**
