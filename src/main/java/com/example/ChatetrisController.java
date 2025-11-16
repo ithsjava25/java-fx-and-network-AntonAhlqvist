@@ -3,6 +3,7 @@ package com.example;
 import io.github.cdimascio.dotenv.Dotenv;
 import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -30,9 +31,87 @@ public class ChatetrisController {
     TextField messageInput;
 
     @FXML
+    Button sendButton;
+
+    @FXML
     private
     Pane messageLayer;
 
+    private final String serverAddress;
+    private final ChatetrisModel model;
+
+    public ChatetrisController() {
+        Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
+        String configuredAddress = dotenv.get("HOST_NAME");
+
+        if (configuredAddress == null || configuredAddress.isBlank()) {
+            throw new IllegalStateException("HOST_NAME måste vara definierad i .env för att appen ska kunna starta.");
+        }
+
+        serverAddress = configuredAddress;
+        model = new ChatetrisModel(serverAddress);
+    }
+
+    @FXML
+    private void initialize() {
+
+        Font.loadFont(
+                getClass().getResource("/Fonts/LucidaHandwritingItalic.ttf").toExternalForm(),
+                20
+        );
+        backgroundImage.setImage(new Image(
+                getClass().getResource("/Images/Seamless_Brown_Wood_With_Light_Brown_Grid.png").toExternalForm()
+        ));
+        frameImage.setImage(new Image(
+                getClass().getResource("/Images/Dark_Brown_Wood_Frame_With_Text.png").toExternalForm()
+        ));
+    }
+
+    /**
+     * Kombinerar sändning av meddelande till servern med skapandet av ett
+     * tetrisblock i UI:t. Används av en knapp som ska utföra båda momenten
+     * samtidigt.
+     */
+    @FXML
+    private void handleSendAndTb(ActionEvent event) {
+        handleSendMessage();
+        tbButton();
+    }
+
+    /**
+     * Hämtar texten från inmatningsfältet och skickar den till servern
+     * via modellen. UI-relaterade effekter hanteras separat av tbButton().
+     */
+    @FXML
+    void handleSendMessage() {
+        String message = messageInput.getText();
+        model.sendMessage(message);
+    }
+
+    /**
+     * I korthet: Skapar ett nytt "tetrisblock" baserat på användarens text och
+     * animerar befintliga block nedåt för att ge effekten av att nya
+     * block staplas ovanpå tidigare.
+     * <p>
+     * 1. Hämtar texten och beräknar dess pixelbredd genom att rendera
+     * den till ett temporärt Text-objekt.
+     * <p>
+     * 2. Omvandlar textbredden till ett antal blocksteg (1–8) baserat
+     * på TILE_SIZE. Max 8 steg för att förhindra överlappning.
+     * <p>
+     * 3. Flyttar alla befintliga block nedåt med en TranslateTransition
+     * för att ge en smidig tetris-liknande rörelse. När animationen
+     * slutförts uppdateras blockets layoutY och translationen nollställs.
+     * <p>
+     * 4. Skapar ett nytt Label-block med korrekt bredd, centrering och
+     * textöverströmningsbeteende.
+     * <p>
+     * 5. Väljer rätt bakgrundsbild baserat på antalet blocksteg och applicerar
+     * den via inline-CSS så att varje block får en passande trätextur.
+     * <p>
+     * 6. Lägger in blocket i messageLayer och animerar det nedåt till sin
+     * slutposition med samma typ av transition som de övriga blocken.
+     */
     @FXML
     void tbButton() {
         String messageText = messageInput.getText();
@@ -104,38 +183,5 @@ public class ChatetrisController {
             tb.setTranslateY(0);
         });
         ttNew.play();
-    }
-
-    private final String serverAddress;
-    private final ChatetrisModel model;
-
-    public ChatetrisController() {
-        Dotenv dotenv = Dotenv.load();
-        serverAddress = dotenv.get("HOST_NAME");
-        model = new ChatetrisModel(serverAddress);
-    }
-
-    @FXML
-    private void initialize() {
-
-        Font.loadFont(
-                getClass().getResource("/Fonts/LucidaHandwritingItalic.ttf").toExternalForm(),
-                20
-        );
-        backgroundImage.setImage(new Image(
-                getClass().getResource("/Images/Seamless_Brown_Wood_With_Light_Brown_Grid.png").toExternalForm()
-        ));
-        frameImage.setImage(new Image(
-                getClass().getResource("/Images/Dark_Brown_Wood_Frame_With_Text.png").toExternalForm()
-        ));
-    }
-
-    @FXML
-    Button sendButton;
-
-    @FXML
-    void handleSendMessage() {
-        String message = messageInput.getText();
-        model.sendMessage(message);
     }
 }

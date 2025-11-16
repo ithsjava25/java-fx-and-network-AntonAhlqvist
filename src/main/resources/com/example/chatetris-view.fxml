@@ -32,7 +32,7 @@
                 prefWidth="160"/>
         <Button fx:id="sendButton"
                 text="Skicka till server"
-                onAction="#handleSendMessage"
+                onAction="#handleSendAndTb"
                 AnchorPane.leftAnchor="64"
                 AnchorPane.bottomAnchor="32"
                 prefWidth="160"/>

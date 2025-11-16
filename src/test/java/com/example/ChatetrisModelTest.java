@@ -20,22 +20,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ChatetrisModelTest {
 
     /**
-     * Testar den förenklade sendMessage-logiken i modellen.
-     * Verifierar att ett meddelande som sätts på modellen faktiskt skickas
-     * till den "spion"-kopplade ChatConnection.
+     * Startar JavaFX-plattformen en gång före alla tester.
+     * <p>
+     * Krävs för att ObservableList och Platform.runLater ska fungera i tester.
+     * <p>
+     * OBS: Om testet körs i CI och JavaFX inte kan startas, hoppar denna metod över
+     * uppstarten. Tester som är beroende av JavaFX måste då skippas eller
+     * hanteras separat.
      */
-    @Test
-    @DisplayName("Given a message when sendMessage is called then it should be sent via connection")
-    void messagesSentToServer() {
-
-        var spy = new ChatConnectionSpy();
-        var model = new ChatModelForTest(spy);
-        model.messageToSend = "Hejsan, servern!";
-
-        model.sendMessage();
-
-        assertThat(spy.sentMessages)
-                .containsExactly("Hejsan, servern!");
+    @BeforeAll
+    static void initJavaFx() {
+        try {
+            if (System.getenv("CI") == null) {
+                Platform.startup(() -> {
+                });
+            } else {
+                System.out.println("Kör i CI (headless) — hoppar över JavaFX-start");
+            }
+        } catch (IllegalStateException | UnsupportedOperationException ignored) {
+        }
     }
 
     /**
@@ -68,8 +71,32 @@ public class ChatetrisModelTest {
     }
 
     /**
+     * Testar den förenklade sendMessage-logiken i modellen.
+     * Verifierar att ett meddelande som sätts på modellen faktiskt skickas
+     * till den "spion"-kopplade ChatConnection.
+     */
+    @Test
+    @DisplayName("Given a message when sendMessage is called then it should be sent via connection")
+    void messagesSentToServer() {
+
+        var spy = new ChatConnectionSpy();
+        var model = new ChatModelForTest(spy);
+        model.messageToSend = "Hejsan, servern!";
+
+        model.sendMessage();
+
+        assertThat(spy.sentMessages)
+                .containsExactly("Hejsan, servern!");
+    }
+
+    /**
      * WireMock-test som simulerar servern.
+     * <p>
      * Verifierar att POST skickas korrekt till root "/" med rätt meddelande.
+     * <p>
+     * JSON byggs nu med Jackson för korrekt hantering av specialtecken,
+     * och `verify(...).withRequestBody(equalToJson(...))` används för att jämföra
+     * innehållet utan att bry sig om ordning på fälten.
      */
     @Test
     @DisplayName("Given a message when sendMessage is called then POST should be sent to /")
@@ -83,30 +110,29 @@ public class ChatetrisModelTest {
 
         stubFor(post("/").willReturn(aResponse().withStatus(200)));
 
-        String testMessage = "Hejsan svejsan!";
+        String testMessage = "Hejsan \"svejsan\"!";
         model.sendMessage(testMessage);
+
+        String expectedJson = new com.fasterxml.jackson.databind.ObjectMapper()
+                .writeValueAsString(java.util.Map.of("topic", "mytopic", "message", testMessage));
+
         verify(postRequestedFor(urlEqualTo("/"))
-                .withRequestBody(equalTo("{\"topic\": \"mytopic\", \"message\": \"" + testMessage + "\"}")));
+                .withRequestBody(equalToJson(expectedJson)));
     }
 
     /**
-     * Startar JavaFX-plattformen en gång före alla tester.
-     * Krävs för att ObservableList och Platform.runLater ska fungera i tester.
-     */
-    @BeforeAll
-    static void initJavaFx() {
-        try {
-            if (System.getenv("CI") == null) {
-                Platform.startup(() -> {});
-            } else {
-                System.out.println("Kör i CI (headless) — hoppar över JavaFX-start");
-            }
-        } catch (IllegalStateException | UnsupportedOperationException ignored) {}
-    }
-
-    /**
-     * WireMock-test som simulerar serverns JSON-ström.
-     * Verifierar att mottagna "message"-event parsas och visas i chatten.
+     * Testar att ChatetrisModel korrekt tar emot och parsar meddelanden från en NDJSON-ström.
+     * <p>
+     * 1. WireMock används för att simulera servern med en ström av JSON-events.
+     * <p>
+     * 2. En CountDownLatch används för att vänta tills de förväntade meddelandena
+     * har lagts till i modellens ObservableList.
+     * <p>
+     * 3. Testet verifierar att listan innehåller exakt de meddelanden som skickades,
+     * i rätt ordning.
+     * <p>
+     * 4. UI-uppdateringar körs direkt i testtråden via Runnable::run för att kunna
+     * köra testet synkront.
      */
     @Test
     @DisplayName("Given JSON stream from server when receiveMessage is called then messages are parsed")
@@ -123,10 +149,10 @@ public class ChatetrisModelTest {
         });
 
         String jsonStream = """
-            {"event":"keepalive"}
-            {"event":"message","message":"Hej från servern!"}
-            {"event":"message","message":"och en till gång! :-)"}
-            """;
+                {"event":"keepalive"}
+                {"event":"message","message":"Hej från servern!"}
+                {"event":"message","message":"och en till gång! :-)"}
+                """;
 
         stubFor(get("/mytopic/json")
                 .willReturn(aResponse()
