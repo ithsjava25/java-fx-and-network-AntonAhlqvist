@@ -6,20 +6,20 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-public class HelloFX extends Application {
+public class ChatetrisFX extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        FXMLLoader fxmlLoader = new FXMLLoader(HelloFX.class.getResource("hello-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(ChatetrisFX.class.getResource("chatetris-view.fxml"));
         Parent root = fxmlLoader.load();
-        Scene scene = new Scene(root, 640, 480);
-        stage.setTitle("Hello MVC");
+        Scene scene = new Scene(root, 640, 640);
+        stage.setTitle("Chatetris");
         stage.setScene(scene);
         stage.show();
+        stage.setResizable(false);
     }
 
-    public static void main(String[] args) {
+    static void main() {
         launch();
     }
-
 }
