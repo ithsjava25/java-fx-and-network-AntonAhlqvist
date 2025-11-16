@@ -247,7 +247,7 @@ public class ChatetrisController {
             Label tb = new Label(messageText);
             tb.setPrefSize(blockWidth, TILE_SIZE);
             tb.setLayoutX(64 + (8 - steps) * TILE_SIZE);
-            tb.setLayoutY(64 - TILE_SIZE);
+            tb.setLayoutX(64 + (8 * TILE_SIZE - blockWidth));
             tb.setAlignment(Pos.CENTER);
             tb.setTextOverrun(OverrunStyle.CLIP);
             tb.getStyleClass().add("tetrisblock");
